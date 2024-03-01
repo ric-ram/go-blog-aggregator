@@ -50,6 +50,7 @@ func main() {
 	}))
 
 	appRouter := chi.NewRouter()
+	appRouter.Get("/users", apiConfig.handlerGetUserByApiKey)
 	appRouter.Post("/users", apiConfig.handlerUsers)
 	router.Mount("/v1", appRouter)
 
