@@ -51,9 +51,14 @@ func main() {
 
 	appRouter := chi.NewRouter()
 	appRouter.Get("/users", apiConfig.middlewareAuth(apiConfig.handlerGetUser))
-	appRouter.Get("/feeds", apiConfig.hnadlerGetFeeds)
+	appRouter.Get("/feeds", apiConfig.handlerGetFeeds)
+	appRouter.Get("/feed_follows", apiConfig.middlewareAuth(apiConfig.handlerGetFeedFollowsForUser))
+
 	appRouter.Post("/users", apiConfig.handlerUsers)
-	appRouter.Post("/feeds", apiConfig.middlewareAuth(apiConfig.handlerCreteFeed))
+	appRouter.Post("/feeds", apiConfig.middlewareAuth(apiConfig.handlerCreateFeed))
+	appRouter.Post("/feed_follows", apiConfig.middlewareAuth(apiConfig.handlerCreateFeedFollows))
+
+	appRouter.Delete("/feed_follows/{feedFollowID}", apiConfig.handlerDeleteFeedFollow)
 	router.Mount("/v1", appRouter)
 
 	server := &http.Server{
