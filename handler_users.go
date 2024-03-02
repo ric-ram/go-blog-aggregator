@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/ric-ram/go-blog-aggregator/internal/auth"
 	"github.com/ric-ram/go-blog-aggregator/internal/database"
 )
 
@@ -38,21 +37,9 @@ func (cfg *apiConfig) handlerUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, user)
+	respondWithJSON(w, http.StatusOK, databaseUserToUser(user))
 }
 
-func (cfg *apiConfig) handlerGetUserByApiKey(w http.ResponseWriter, r *http.Request) {
-	headerToken, err := auth.GetBearerToken(r.Header)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "No authorization token provided")
-		return
-	}
-
-	user, err := cfg.DB.GetUserByApiKey(r.Context(), headerToken)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error getting user from token")
-		return
-	}
-
-	respondWithJSON(w, http.StatusOK, user)
+func (cfg *apiConfig) handlerGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
+	respondWithJSON(w, http.StatusOK, databaseUserToUser(user))
 }
