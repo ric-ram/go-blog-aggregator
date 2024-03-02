@@ -51,6 +51,7 @@ func main() {
 
 	appRouter := chi.NewRouter()
 	appRouter.Get("/users", apiConfig.middlewareAuth(apiConfig.handlerGetUser))
+	appRouter.Get("/feeds", apiConfig.hnadlerGetFeeds)
 	appRouter.Post("/users", apiConfig.handlerUsers)
 	appRouter.Post("/feeds", apiConfig.middlewareAuth(apiConfig.handlerCreteFeed))
 	router.Mount("/v1", appRouter)

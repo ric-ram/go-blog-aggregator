@@ -42,3 +42,13 @@ func (cfg *apiConfig) handlerCreteFeed(w http.ResponseWriter, r *http.Request, u
 
 	respondWithJSON(w, http.StatusOK, databaseFeedToFeed(feed))
 }
+
+func (cfg *apiConfig) hnadlerGetFeeds(w http.ResponseWriter, r *http.Request) {
+	feeds, err := cfg.DB.GetAllFeeds(r.Context())
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't get feeds from the database")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, databaseFeedsListToFeedsList(feeds))
+}
