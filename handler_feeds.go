@@ -9,9 +9,10 @@ import (
 	"github.com/ric-ram/go-blog-aggregator/internal/database"
 )
 
-func (cfg *apiConfig) handlerUsers(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerCreteFeed(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		Name string `json:"name"`
+		URL  string `json:"url"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -26,20 +27,18 @@ func (cfg *apiConfig) handlerUsers(w http.ResponseWriter, r *http.Request) {
 	createdAt := time.Now()
 	updatedAt := createdAt
 
-	user, err := cfg.DB.CreateUser(r.Context(), database.CreateUserParams{
+	feed, err := cfg.DB.CreateFeed(r.Context(), database.CreateFeedParams{
 		ID:        id,
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
 		Name:      params.Name,
+		Url:       params.URL,
+		UserID:    user.ID,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error creating new user")
+		respondWithError(w, http.StatusInternalServerError, "Error creating new feed for user")
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, databaseUserToUser(user))
-}
-
-func (cfg *apiConfig) handlerGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
-	respondWithJSON(w, http.StatusOK, databaseUserToUser(user))
+	respondWithJSON(w, http.StatusOK, databaseFeedToFeed(feed))
 }

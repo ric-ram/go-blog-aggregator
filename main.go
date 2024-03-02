@@ -50,8 +50,9 @@ func main() {
 	}))
 
 	appRouter := chi.NewRouter()
-	appRouter.Get("/users", apiConfig.handlerGetUserByApiKey)
+	appRouter.Get("/users", apiConfig.middlewareAuth(apiConfig.handlerGetUser))
 	appRouter.Post("/users", apiConfig.handlerUsers)
+	appRouter.Post("/feeds", apiConfig.middlewareAuth(apiConfig.handlerCreteFeed))
 	router.Mount("/v1", appRouter)
 
 	server := &http.Server{
