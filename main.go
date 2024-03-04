@@ -56,6 +56,7 @@ func main() {
 	appRouter.Get("/users", apiConfig.middlewareAuth(apiConfig.handlerGetUser))
 	appRouter.Get("/feeds", apiConfig.handlerGetFeeds)
 	appRouter.Get("/feed_follows", apiConfig.middlewareAuth(apiConfig.handlerGetFeedFollowsForUser))
+	appRouter.Get("/posts", apiConfig.middlewareAuth(apiConfig.handlerGetPostsByUser))
 
 	appRouter.Post("/users", apiConfig.handlerUsers)
 	appRouter.Post("/feeds", apiConfig.middlewareAuth(apiConfig.handlerCreateFeed))
