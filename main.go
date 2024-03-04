@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
@@ -27,17 +28,19 @@ func main() {
 	runPort := os.Getenv("PORT")
 	dbUrl := os.Getenv("DB_URL")
 
-	db, err := sql.Open("postgres", dbUrl)
+	conn, err := sql.Open("postgres", dbUrl)
 	if err != nil {
 		log.Fatal("Error loading database")
 	}
 
-	dbQueries := database.New(db)
+	db := database.New(conn)
 
 	apiConfig := apiConfig{
 		runPort: runPort,
-		DB:      dbQueries,
+		DB:      db,
 	}
+
+	go startScrapping(db, 10, time.Minute)
 
 	router := chi.NewRouter()
 	router.Use(cors.Handler(cors.Options{
@@ -50,7 +53,16 @@ func main() {
 	}))
 
 	appRouter := chi.NewRouter()
+	appRouter.Get("/users", apiConfig.middlewareAuth(apiConfig.handlerGetUser))
+	appRouter.Get("/feeds", apiConfig.handlerGetFeeds)
+	appRouter.Get("/feed_follows", apiConfig.middlewareAuth(apiConfig.handlerGetFeedFollowsForUser))
+	appRouter.Get("/posts", apiConfig.middlewareAuth(apiConfig.handlerGetPostsByUser))
+
 	appRouter.Post("/users", apiConfig.handlerUsers)
+	appRouter.Post("/feeds", apiConfig.middlewareAuth(apiConfig.handlerCreateFeed))
+	appRouter.Post("/feed_follows", apiConfig.middlewareAuth(apiConfig.handlerCreateFeedFollows))
+
+	appRouter.Delete("/feed_follows/{feedFollowID}", apiConfig.handlerDeleteFeedFollow)
 	router.Mount("/v1", appRouter)
 
 	server := &http.Server{
